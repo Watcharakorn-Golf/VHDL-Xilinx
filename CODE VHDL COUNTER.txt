@@ -1,0 +1,101 @@
+
+test_1.vhd
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity test_1 is
+    Port ( clk : in  STD_LOGIC;
+           reset : in  STD_LOGIC;
+           q : out  STD_LOGIC_VECTOR (3 downto 0));
+end test_1;
+
+architecture Behavioral of test_1 is
+	constant TEN: integer := 10;
+	signal r_reg ,r_next  : unsigned(3 downto 0);
+
+begin
+	process(clk,reset)
+	begin
+		if reset = '1' then
+			r_reg <= (others => '0');
+		elsif (clk'event and clk = '1') then
+			r_reg <= r_next;
+		end if;
+	end process;
+	r_next <= to_unsigned(TEN,4) when r_reg=(0) else
+				r_reg - 1 ;
+	q <= std_logic_vector(r_reg);
+	
+end Behavioral;
+
+____________________________________________________________________
+
+test_1_tb.vhd
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ 
+ENTITY test_1_tb IS
+END test_1_tb;
+ 
+ARCHITECTURE behavior OF test_1_tb IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT test_1
+    PORT(
+         clk : IN  std_logic;
+         reset : IN  std_logic;
+         q : OUT  std_logic_vector(3 downto 0)
+        );
+    END COMPONENT;
+    
+
+   --Inputs
+   signal clk : std_logic := '0';
+   signal reset : std_logic := '0';
+
+ 	--Outputs
+   signal q : std_logic_vector(3 downto 0);
+
+   -- Clock period definitions
+   constant clk_period : time := 10 ns;
+ 
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: test_1 PORT MAP (
+          clk => clk,
+          reset => reset,
+          q => q
+        );
+
+   -- Clock process definitions
+   clk_process :process
+   begin
+		clk <= '0';
+		wait for clk_period/2;
+		clk <= '1';
+		wait for clk_period/2;
+   end process;
+ 
+
+   -- Stimulus process
+   stim_proc: process
+   begin		
+      -- hold reset state for 100 ns.
+		reset <= '1';
+      wait for 100 ns;	
+		reset <= '0';
+      wait for clk_period*10;
+
+      -- insert stimulus here 
+
+      wait;
+   end process;
+
+END;
+
